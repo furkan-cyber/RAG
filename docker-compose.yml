@@ -2,7 +2,11 @@ version: '3.8'
 
 services:
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+      cache_from:
+        - ghcr.io/furkan-cyber/ragnttdata:latest
     container_name: ntt-sustainability-rag
     ports:
       - "8000:8000"  # FastAPI
@@ -17,7 +21,7 @@ services:
       - SERVICE_OPTION=${SERVICE_OPTION:-api}
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/api/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
