@@ -28,7 +28,7 @@ jobs:
     
     - name: Run tests with coverage
       run: |
-        pytest -v -s --cov=. --cov-report=xml main.py::TestRAGSystem
+        pytest -v -s --cov=. --cov-report=xml main.py
     
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
