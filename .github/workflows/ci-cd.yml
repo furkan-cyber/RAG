@@ -8,27 +8,38 @@ on:
 
 env:
   DOCKER_IMAGE: ghcr.io/furkan-cyber/ragnttdata:latest
+  PYTHON_VERSION: '3.9'
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 10  # Prevent hanging
     steps:
     - uses: actions/checkout@v3
+    
+    - name: Cache Python dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/pip
+          ~/.cache/nltk
+        key: ${{ runner.os }}-python-${{ env.PYTHON_VERSION }}-${{ hashFiles('requirements.txt') }}
     
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.9'
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'  # Enable pip caching
     
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        pip install --cache-dir ~/.cache/pip -r requirements.txt
         python -m nltk.downloader punkt stopwords
     
     - name: Run tests with coverage
       run: |
-        pytest -v -s --cov=. --cov-report=xml main.py
+        pytest -v -s --cov=. --cov-report=xml --durations=10 main.py
     
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
@@ -36,19 +47,28 @@ jobs:
   build-and-push:
     needs: test
     runs-on: ubuntu-latest
+    timeout-minutes: 15  # Prevent hanging
     permissions:
       contents: read
       packages: write
     steps:
     - uses: actions/checkout@v3
     
-    # ÖNEMLİ DEĞİŞİKLİK 1: Docker Buildx ayarı
+    - name: Cache Docker layers
+      uses: actions/cache@v3
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-
+    
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
       with:
-        driver: docker-container  # Bu satır kritik!
+        driver: docker-container
+        buildkitd-flags: --debug
+        install: true
     
-    # ÖNEMLİ DEĞİŞİKLİK 2: GitHub Container Registry login
     - name: Log in to GitHub Container Registry
       uses: docker/login-action@v2
       with:
@@ -56,7 +76,6 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     
-    # ÖNEMLİ DEĞİŞİKLİK 3: Build ve push işlemi
     - name: Build and push Docker image
       uses: docker/build-push-action@v4
       with:
@@ -65,12 +84,14 @@ jobs:
         tags: ${{ env.DOCKER_IMAGE }}
         labels: |
           org.opencontainers.image.source=${{ github.repository_url }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+        cache-from: type=gha,scope=${{ github.ref }}-${{ github.workflow }}
+        cache-to: type=gha,mode=max,scope=${{ github.ref }}-${{ github.workflow }}
+        builder: ${{ steps.buildx.outputs.name }}
 
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
+    timeout-minutes: 10  # Prevent hanging
     if: github.ref == 'refs/heads/main'
     steps:
     - uses: actions/checkout@v3
@@ -87,4 +108,5 @@ jobs:
       run: |
         gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
         gcloud auth configure-docker
+        docker pull ${{ env.DOCKER_IMAGE }} || true  # Continue if image doesn't exist
         docker run --env SERVICE_OPTION=deploy ${{ env.DOCKER_IMAGE }}
