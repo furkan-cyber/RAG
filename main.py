@@ -1297,7 +1297,7 @@ class TestRAGSystem:
         mock_get.return_value.content = b"test content"
         
         temp_file = Config.PDF_STORAGE_DIR / "test_download.pdf"
-        success = DocumentProcessor.download_pdf("http://example.com/report.pdf", str(temp_file))
+        success = DocumentProcessor.download_pdf("https://www.nttdata.com/global/en/-/media/nttdataglobal/files/sustainability/susatainability-report/sustainability-report_2017_1.pdf?rev=29bdd65074874eddb3fcea68a399687f", str(temp_file))
         
         assert success
         assert temp_file.exists()
