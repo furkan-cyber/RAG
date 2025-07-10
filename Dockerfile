@@ -2,9 +2,9 @@
 FROM python:3.9-slim
 
 # Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-ENV DEBIAN_FRONTEND noninteractive
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -38,9 +38,9 @@ RUN mkdir -p /app/data/pdfs /app/data/processed /app/data/vector_db /app/static 
 ENV GOOGLE_APPLICATION_CREDENTIALS=/app/service-account.json
 
 # Expose ports
-EXPOSE 8000  # FastAPI
-EXPOSE 7860  # Gradio
-EXPOSE 8001  # Prometheus metrics
+EXPOSE 8000
+EXPOSE 7860
+EXPOSE 8001
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
