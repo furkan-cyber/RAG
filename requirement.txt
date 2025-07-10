@@ -1,0 +1,47 @@
+# Core Dependencies
+python>=3.9
+fastapi>=0.95.0
+uvicorn>=0.21.1
+pydantic>=1.10.7
+python-dotenv>=1.0.0
+
+# Data Processing
+numpy>=1.24.0
+pandas>=1.5.0
+pymupdf>=1.22.0
+nltk>=3.8.1
+scikit-learn>=1.2.0
+sentence-transformers>=2.2.2
+
+# Vector Database
+chromadb>=0.3.21
+hnswlib>=0.7.0
+
+# LLM and RAG
+langchain>=0.0.200
+langchain-community>=0.0.10
+ollama>=0.0.6
+
+# Web Interface
+gradio>=3.34.0
+
+# GCP Integration
+google-cloud-storage>=2.8.0
+google-cloud-aiplatform>=1.25.0
+
+# Monitoring
+prometheus-client>=0.16.0
+prometheus-fastapi-instrumentator>=5.9.1
+
+# Testing
+pytest>=7.3.1
+pytest-cov>=4.0.0
+requests-mock>=1.10.0
+
+# Async
+aiohttp>=3.8.4
+asyncio>=3.4.3
+
+# Other Utilities
+tqdm>=4.65.0
+python-multipart>=0.0.6
