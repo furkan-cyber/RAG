@@ -224,7 +224,7 @@ class DocumentProcessor:
         text = re.sub(r"\s+", " ", text).strip()
         
         # Enhanced stopword removal
-        stop_words = set(stopwords.words("english") + ["ntt", "data"]
+        stop_words = set(stopwords.words("english") + ["ntt", "data"])
         words = text.split()
         words = [word for word in words if word not in stop_words]
         
