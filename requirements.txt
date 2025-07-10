@@ -37,6 +37,7 @@ prometheus-fastapi-instrumentator>=5.9.1
 # Testing
 pytest>=7.3.1
 pytest-cov>=4.0.0
+pytest-asyncio>=0.23.0
 requests-mock>=1.10.0
 
 # Async
