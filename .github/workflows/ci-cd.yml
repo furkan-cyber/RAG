@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 env:
-  DOCKER_IMAGE: ghcr.io/${{ github.repository }}:latest
+  DOCKER_IMAGE: ghcr.io/furkan-cyber/ragnttdata:latest
 
 jobs:
   test:
@@ -33,16 +33,14 @@ jobs:
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
 
-  build:
+  build-and-push:
     needs: test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
     - uses: actions/checkout@v3
-    
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-      with:
-        driver: docker-container
     
     - name: Log in to GitHub Container Registry
       uses: docker/login-action@v2
@@ -57,11 +55,13 @@ jobs:
         context: .
         push: true
         tags: ${{ env.DOCKER_IMAGE }}
+        labels: |
+          org.opencontainers.image.source=${{ github.repository_url }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
   deploy:
-    needs: build
+    needs: build-and-push
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
