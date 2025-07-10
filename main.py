@@ -1343,6 +1343,7 @@ class TestRAGSystem:
         assert response == "Test response"
     
     @patch.object(RAGPipeline, 'retrieve_documents')
+    @pytest.mark.asyncio
     async def test_rag_response(self, mock_retrieve):
         """Test RAG response generation"""
         mock_retrieve.return_value = [{
