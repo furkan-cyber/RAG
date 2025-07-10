@@ -16,9 +16,6 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# Install NLTK data
-RUN python -m nltk.downloader punkt stopwords
-
 # Set working directory
 WORKDIR /app
 
@@ -27,6 +24,9 @@ COPY requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Install NLTK data (must be after pip install)
+RUN python -m nltk.downloader punkt stopwords
 
 # Copy application code
 COPY . .
