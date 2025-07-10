@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: ntt-sustainability-rag
+    ports:
+      - "8000:8000"  # FastAPI
+      - "7860:7860"  # Gradio
+      - "8001:8001"  # Prometheus
+    volumes:
+      - ./data:/app/data
+      - ./static:/app/static
+      - ./.env:/app/.env
+      - ./service-account.json:/app/service-account.json
+    environment:
+      - SERVICE_OPTION=${SERVICE_OPTION:-api}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+
+volumes:
+  ollama_data:
